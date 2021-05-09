@@ -68,3 +68,4 @@ class SkipGram:
             for i, idx in enumerate(t_idx):                 # t_idx = (#target, #sub)       #sub은 각  target 마다 상이함.
                 self.W_out[idx] -= dW_out[i] * lr
             self.W_in[x_idx] -= dx * lr
+            
