@@ -1,62 +1,56 @@
-import pickle
-import numpy as np
 from collections import Counter
-from tqdm.auto import tqdm
 import os
 import sys
 sys.path.append(os.getcwd())
+from src.functions import *
+
+
+# def make_words(file):
+#     with open(file, 'r', encoding='utf8') as f:
+#         data = f.read()
+#     word_list = data.split()
+#     return word_list
 
 
 def make_words(file):
-    with open(file, 'r', encoding='utf8') as fr:
-        data = fr.read()
     word_list = []
-    word = ''
-    for c in data:
-        if (c == '\n') or (c ==' ') or (c == '\t'):
-            word_list.append(word)
-            word = ''
-            if c == '\n':
-                word_list.append('\s')
-        else: word += c
+    with open(file) as infile:
+        for line in tqdm(infile):
+            word_list.append(line.split())
     return word_list
 
 
-def make_wordDict(start, end, least_freq=5):
-    counter = Counter()
-    for i in tqdm(range(start, end+1)):
-        if i < 10: num = '0'+ str(i)
-        else: num = str(i)
-        file = 'datasets/pre_train/1-billion-word/training/news.en-000' + num + '-of-00100'
-        word_list = make_words(file)
-        counter += Counter(word_list)
+def make_wordDict(file, least_freq=5):
+    print("Please wait... loading dataset..")
+    word_list = make_words(file)
+    counter = Counter(word_list)
+    print("Complete!")
 
-    temp = Counter()
-    for word in counter.keys():
-        if counter[word] < least_freq:
-            temp[word] += 100          # 무조건 없어지게 큰 값(least_freq 보다 상대적으로)을 할당
+    word_freq = Counter()
+    for word in tqdm(counter.keys(), desc='counting the frequency of words', bar_format='{l_bar}{bar:20}{r_bar}'):
+        if counter[word] >= least_freq:
+            word_freq[word] = counter[word]
 
-    counter -= temp
-    vocabulary = {'\s':0}
-    vocabulary.update(dict(counter.most_common()))
-    vocabulary['\s'] = 0
+    vocabulary = dict(word_freq.most_common())
     word_to_id = {}
     id_to_word = {}
-    for word in vocabulary.keys():
+    for word in tqdm(vocabulary.keys(), desc='making dictionary', bar_format='{l_bar}{bar:20}{r_bar}'):
         word_to_id[word] = len(word_to_id)
         id_to_word[len(id_to_word)] = word
     return word_to_id, id_to_word, vocabulary
 
 
 def make_subwordDict(vocabulary, min_n, max_n):
-    subword_to_id = {}
-    id_to_subword = {}
+    subword_to_id = {'[pad]': 0}
+    id_to_subword = {0: '[pad]'}
     ngram_set = set()
-    for word in tqdm(vocabulary.keys()):
+    for word in tqdm(vocabulary.keys(), desc='making subword dictionary', bar_format='{l_bar}{bar:20}{r_bar}'):
+        if word == '[pad]':
+            continue
         word = '<' + word + '>'
         subword_to_id[word] = len(subword_to_id)
-        id_to_subword[len(id_to_subword)] = word       
-        
+        id_to_subword[len(id_to_subword)] = word
+
         wl = len(word)
         for i in range(wl):
             if wl-i < min_n:
@@ -65,7 +59,7 @@ def make_subwordDict(vocabulary, min_n, max_n):
             for j in range(min_n-1, end):       # index 는 길이보다 한 개 빼줘야 함.
                 if j+1 == wl:                   # word itself 는 위에서 미리 처리했음.
                     continue
-                ngram_set.add(word[i : i+j+1])
+                ngram_set.add(word[i: i+j+1])
 
     # convert set 'ngrams' to dictionary
     for ngram in ngram_set:
@@ -74,20 +68,16 @@ def make_subwordDict(vocabulary, min_n, max_n):
     return subword_to_id, id_to_subword
 
 
-def make_sentences(word_to_id, start, end):
-    sentence_list = []
-    for i in tqdm(range(start, end)):
-        if i < 10: num = '0'+ str(i)
-        else: num = str(i)
-        file = 'datasets/pre_train/1-billion-word/training/news.en-000' + num + '-of-00100'
-        word_list = make_words(file)
+def make_corpus(file, word_to_id, sub_p):
+    with open(file, 'rb') as fr:
+        word_list = pickle.load(fr)
+    corpus = []                 # (#tokens, )
+    for word in word_list:
+        if word not in word_to_id:
+            continue
+        idx = word_to_id[word]
 
-        sentence = []
-        for word in word_list:
-            if word in word_to_id.keys():
-                if word == '\s':
-                    sentence_list.append(sentence)
-                    sentence = []
-                else: sentence.append(word_to_id[word])
-    return sentence_list
-
+        # subsampling
+        if sub_p[idx] < np.random.random():
+            corpus.append(idx)
+    return np.array(corpus)
