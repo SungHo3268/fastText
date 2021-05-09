@@ -1,0 +1,14 @@
+raw token_num = (123353509 , )
+sub_corpus = (64003883, )		# subsampling을 확률에 따라 random하게 뽑으므로 매 계산마다 개수가 약간씩 다르다. (오차율 0.005%미만)
+seq_corpus = (1828682, 35)		== 64,003,870 tokens (35로 나눈 나머지는 버렸음)
+seg_corpus =((365737, 35),
+	     (365737, 35),
+	     (365737, 35),
+	     (365737, 35),
+	     (365734, 35))		== 전체 token 수는 그대로 64,003,870
+
+
+word vocabulary size = 218316
+subword vocabulary size = 1043255
+
+

@@ -1,0 +1,83 @@
+import argparse
+from distutils.util import strtobool as _bool
+from torch.utils.tensorboard import SummaryWriter
+import pickle
+import gzip
+from tqdm.auto import tqdm
+import time
+import json
+import os
+import sys
+sys.path.append(os.getcwd())
+from src.Huffman import *
+from src.utils import *
+from src.models import *
+from src.functions import *
+
+sub_t = 1e-04
+
+
+#################### subsampling with discarded probability ####################
+def subsampling_prob(vocabulary, sub_t):
+    sub_p = []
+    freq = np.array(list(vocabulary.values()))
+    prob = freq/sum(freq)
+    for p in tqdm(prob, desc='get subsampling prob: ', bar_format="{l_bar}{bar:20}{r_bar}"):
+        sub_p.append(1-np.sqrt(sub_t/p))
+    return np.array(sub_p)
+
+def subsampling(sentence_, sub_p):
+    sentence = []
+    for word in tqdm(sentence_):
+        if sub_p[word] < np.random.random():
+            sentence.append(word)
+    return sentence
+
+#### main ###
+file = 'datasets/wiki/preprocessed/wordDict.pkl'
+word_to_id, id_to_word, vocabulary = load_dict(file)
+with open('datasets/wiki/preprocessed/corpus/corpus_all.pkl', 'rb') as fr:
+    corpus = pickle.load(fr)
+
+sub_p = subsampling_prob(vocabulary, sub_t)
+sub_corpus = subsampling(corpus, sub_p)
+print("discarded prob subsampling(in paper): ", len(sub_corpus)/len(corpus)*100, "[%] kept.")
+
+
+
+#################### subsampling with kept probability ####################
+def subsampling_prob(vocabulary, sub_t):
+    sub_p = []
+    freq = np.array(list(vocabulary.values()))
+    prob = freq/sum(freq)
+    for p in tqdm(prob, desc='get subsampling prob: ', bar_format="{l_bar}{bar:20}{r_bar}"):
+        sub_p.append((1+np.sqrt(p/sub_t))*sub_t/p)
+    return np.array(sub_p)
+
+def subsampling(sentence_, sub_p):
+    sentence = []
+    for word in tqdm(sentence_):
+        if sub_p[word] > np.random.random():
+            sentence.append(word)
+    return sentence
+
+#### main ###
+sub_p = subsampling_prob(vocabulary, sub_t)
+sub_corpus = subsampling(corpus, sub_p)
+print("kept prob subsampling(in public code): ", len(sub_corpus)/len(corpus)*100, "[%] kept.")
+
+
+
+#################### result at sub_t = 1e-05 ####################
+discarded prob subsampling(in paper):  26.738430278460907 [%] kept.
+kept prob subsampling(in public code):  31.338750160727084 [%] kept.
+
+#################### result at sub_t = 1e-04 ####################
+discarded prob subsampling(in paper):  46.70291787159456 [%] kept.
+kept prob subsampling(in public code):  51.88837392538221 [%] kept.
+
+#################### result at sub_t = 1e-03 ####################
+discarded prob subsampling(in paper):  66.64827832339978 [%] kept.
+kept prob subsampling(in public code):  71.47249698425685 [%] kept.
+
+--> sub_t 가 커질 때마다 거의 20%씩 증가.
