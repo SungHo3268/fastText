@@ -86,7 +86,8 @@ semantic acc: 64.0 [%]
 
 
 python script/run_train.py --model CBOW --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 5 --sub_t 1e-04 --lr 0.05 --hidden_dim 300 --seq_len 35
-
+syntactic acc: 48.3 [%]
+semantic acc: 70.0 [%]
 
 python script/run_train.py --model SkipGram --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 5 --sub_t 1e-04 --lr 0.025 --hidden_dim 300 --seq_len 35
 
