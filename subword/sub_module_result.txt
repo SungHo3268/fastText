@@ -65,28 +65,30 @@ semantic acc: 49.0 [%]
 
 
 ================================================================================
-screen -S w2v_CBOW_3epoch_1e-05
-conda activate conda_virtual
 python script/run_train.py --model CBOW --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 3 --sub_t 1e-05 --lr 0.05 --hidden_dim 300 --seq_len 35
 syntactic acc: 30.8 [%]
 semantic acc: 56.3 [%]
 
-
-screen -S w2v_SG_3epoch_1e-05
-conda activate conda_virtual
 python script/run_train.py --model SkipGram --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 3 --sub_t 1e-05 --lr 0.025 --hidden_dim 300 --seq_len 35
 syntactic acc: 36.3 [%]
 semantic acc: 50.8 [%]
 
 
-screen -S w2v_CBOW_3epoch_1e-04
-conda activate conda_virtual
+
 python script/run_train.py --model CBOW --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 3 --sub_t 1e-04 --lr 0.05 --hidden_dim 300 --seq_len 35
+syntactic acc: 43.4 [%]
+semantic acc: 67.6 [%]
 
-
-screen -S w2v_SG_3epoch_1e-04
-conda activate conda_virtual
 python script/run_train.py --model SkipGram --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 3 --sub_t 1e-04 --lr 0.025 --hidden_dim 300 --seq_len 35
+syntactic acc: 44.4 [%]
+semantic acc: 64.0 [%]
+
+
+
+python script/run_train.py --model CBOW --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 5 --sub_t 1e-04 --lr 0.05 --hidden_dim 300 --seq_len 35
+
+
+python script/run_train.py --model SkipGram --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 5 --sub_t 1e-04 --lr 0.025 --hidden_dim 300 --seq_len 35
 
 
 
