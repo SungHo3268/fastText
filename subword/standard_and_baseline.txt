@@ -1,34 +1,17 @@
-vocab = 218316
+'''
+This result was obtained with the facebook public module and 1 billion truncated wiki dataset.
+The parameters are as follows.
+Because of the randomness of window size, negative sampling, and etc, a standard was established as an average value after five experiments.
+
+
+1 billion wiki dataset has the 218,316 words in the vocabulary.
+And the numbers below refer to the number of valid questions excluding oov in syntactic and semantic analogy tasks (at Mikolov, 2013a).
 valid semantic: 506/8869
 valid syntactic: 9076/10675
 
 
-
-./fasttext skipgram -input data/fil9 -output result/fil9 -minn 3 -maxn 6 -dim 300 -epoch 1 -lr 0.05 -thread 80
-1 try
-syntactic accuracy: 51.3 [%]
-semantic accuracy: 37.5 [%]
-
-2 try
-syntactic acc: 51.6 [%]
-semantic acc: 41.7 [%]
-
-3try
-syntactic acc: 50.3 [%]
-semantic acc: 40.1 [%]
-
-4 try
-syntactic acc: 51.4 [%]
-semantic acc: 33.6 [%]
-
-5 try
-syntactic acc: 50.2 [%]
-semantic acc: 38.5 [%]
-
------------- avg ------------
-syntactic acc: 50.96 [%]
-semantic acc: 38.28 [%]
-
+In order to obtain new baselines different from the paper because of the changed dataset from 2006 wiki to latest truncated wiki dataset, the word2vec model that I implemented earlier was trained with a wiki dataset.
+'''
 
 
 
@@ -57,14 +40,11 @@ semantic acc: 46.6 [%]
 syntactic acc: 61.9 [%]
 semantic acc: 47.1 [%]
 
------------- mine ------------
-syntactic acc: 63.0 [%]
-semantic acc: 49.0 [%]
 
 
 
 
-================================================================================
+===============================================  Word2Vec baselines ===============================================
 python script/run_train.py --model CBOW --activation NEG --window_size 5 --least_freq 5 --negative 5 --max_epoch 3 --sub_t 1e-05 --lr 0.05 --hidden_dim 300 --seq_len 35
 syntactic acc: 30.8 [%]
 semantic acc: 56.3 [%]
