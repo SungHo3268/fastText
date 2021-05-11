@@ -3,12 +3,10 @@ This result was obtained with the facebook public module and 1 billion truncated
 The parameters are as follows.
 Because of the randomness of window size, negative sampling, and etc, a standard was established as an average value after five experiments.
 
-
 1 billion wiki dataset has the 218,316 words in the vocabulary.
 And the numbers below refer to the number of valid questions excluding oov in syntactic and semantic analogy tasks (at Mikolov, 2013a).
 valid semantic: 506/8869
 valid syntactic: 9076/10675
-
 
 In order to obtain new baselines different from the paper because of the changed dataset from 2006 wiki to latest truncated wiki dataset, the word2vec model that I implemented earlier was trained with a wiki dataset.
 '''
